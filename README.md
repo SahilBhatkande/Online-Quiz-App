@@ -9,6 +9,7 @@ Hey there! This is a simple quiz application I built using React and Node.js. It
 
 ## What it does
 
+- User registration and login system
 - Shows questions one at a time in a clean interface
 - Has a 5-minute timer that counts down
 - Lets you go back and forth between questions
@@ -25,12 +26,22 @@ Hey there! This is a simple quiz application I built using React and Node.js. It
 
 **Backend:**
 - Node.js with Express
-- SQLite database (super simple, no setup needed)
+- PostgreSQL database
+- JWT authentication
 - Jest for testing
 
 ## Getting it running
 
-First, make sure you have Node.js installed (version 18 or newer should work).
+First, make sure you have Node.js installed (version 18 or newer should work) and PostgreSQL set up.
+
+### Environment setup
+
+Create a `.env` file in the backend directory with:
+
+```
+DATABASE_URL=your_postgresql_connection_string
+JWT_SECRET=your_jwt_secret_key
+```
 
 ### Backend setup
 
@@ -65,25 +76,30 @@ Tests the scoring logic and API stuff.
 
 ## How to use it
 
-1. Click "Start Quiz" on the first page
-2. Answer questions by clicking the options
-3. Use Next/Previous to move around
-4. Watch the timer - you have 5 minutes
-5. Submit when done (or it auto-submits when time's up)
-6. See your results and click "Take Quiz Again" if you want
+1. Register a new account or login with existing credentials
+2. Click "Start Quiz" on the start page
+3. Answer questions by clicking the options
+4. Use Next/Previous to move around
+5. Watch the timer - you have 5 minutes
+6. Submit when done (or it auto-submits when time's up)
+7. See your results and click "Take Quiz Again" if you want
 
 ## API stuff (for developers)
 
-**GET /questions** - Gets all questions (no answers shown)
+**POST /register** - Register a new user (body: {username, email, password})
 
-**POST /submit** - Sends your answers, gets back score and details
+**POST /login** - Login user (body: {email, password}) returns JWT token
+
+**GET /questions** - Gets all questions (requires auth token)
+
+**POST /submit** - Sends your answers, gets back score and details (requires auth token)
 
 ## Why I made certain choices
 
 - **Cards everywhere**: Just looks clean and organized
 - **Light theme**: Easy on the eyes, works for everyone
 - **Centered everything**: Looks good on any screen size
-- **SQLite**: No database server to set up, perfect for demos
+- **PostgreSQL**: Scalable relational database, good for production use
 - **React SPA**: Fast and responsive
 - **Tailwind v4**: New hotness, should be faster
 
@@ -98,7 +114,7 @@ Tests the scoring logic and API stuff.
 
 **Port issues:** Change the port numbers in the code if needed
 
-**Database problems:** Delete the quiz.db file and restart the backend
+**Database problems:** Check your DATABASE_URL in .env and ensure PostgreSQL is running
 
 **Styles not loading:** Make sure npm install worked in both folders
 

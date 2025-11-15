@@ -1,19 +1,47 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import LoginPage from './components/LoginPage';
+import RegisterPage from './components/RegisterPage';
 import StartPage from './components/StartPage';
 import QuizPage from './components/QuizPage';
 import ResultsPage from './components/ResultsPage';
 
 function App() {
-  const [page, setPage] = useState('start');
+  const [page, setPage] = useState('auth');
+  const [authMode, setAuthMode] = useState('login'); // 'login' or 'register'
+  const [token, setToken] = useState(localStorage.getItem('token') || null);
   const [questions, setQuestions] = useState([]);
   const [answers, setAnswers] = useState([]);
   const [score, setScore] = useState(0);
   const [results, setResults] = useState([]);
 
+  useEffect(() => {
+    if (token) {
+      setPage('start');
+    }
+  }, [token]);
+
+  const handleLogin = (newToken) => {
+    setToken(newToken);
+    setPage('start');
+  };
+
+  const handleRegister = () => {
+    setAuthMode('login');
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    setToken(null);
+    setPage('auth');
+    setAuthMode('login');
+  };
+
   const startQuiz = async () => {
     try {
-      const res = await fetch('http://localhost:5000/questions');
+      const res = await fetch('http://localhost:5000/questions', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
       const data = await res.json();
       setQuestions(data);
       setAnswers(new Array(data.length).fill(null));
@@ -27,7 +55,10 @@ function App() {
     try {
       const res = await fetch('http://localhost:5000/submit', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify({ answers })
       });
       const data = await res.json();
@@ -55,6 +86,30 @@ function App() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
       <div className="w-full max-w-2xl">
         <AnimatePresence mode="wait">
+          {page === 'auth' && authMode === 'login' && (
+            <motion.div
+              key="login"
+              initial="initial"
+              animate="in"
+              exit="out"
+              variants={pageVariants}
+              transition={pageTransition}
+            >
+              <LoginPage onLogin={handleLogin} onSwitchToRegister={() => setAuthMode('register')} />
+            </motion.div>
+          )}
+          {page === 'auth' && authMode === 'register' && (
+            <motion.div
+              key="register"
+              initial="initial"
+              animate="in"
+              exit="out"
+              variants={pageVariants}
+              transition={pageTransition}
+            >
+              <RegisterPage onRegister={handleRegister} onSwitchToLogin={() => setAuthMode('login')} />
+            </motion.div>
+          )}
           {page === 'start' && (
             <motion.div
               key="start"
@@ -64,7 +119,7 @@ function App() {
               variants={pageVariants}
               transition={pageTransition}
             >
-              <StartPage onStart={startQuiz} />
+              <StartPage onStart={startQuiz} onLogout={handleLogout} />
             </motion.div>
           )}
           {page === 'quiz' && (

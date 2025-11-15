@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 
-function StartPage({ onStart }) {
+function StartPage({ onStart, onLogout }) {
   return (
     <motion.div
       className="relative bg-gradient-to-br from-white via-blue-50 to-indigo-100 rounded-2xl shadow-2xl p-10 text-center border border-gray-200 overflow-hidden"
@@ -9,6 +9,16 @@ function StartPage({ onStart }) {
       transition={{ duration: 0.6, type: 'spring', stiffness: 100 }}
       whileHover={{ scale: 1.02 }}
     >
+      {/* Logout button */}
+      <motion.button
+        onClick={onLogout}
+        className="absolute top-4 right-4 bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.5 }}
+      >
+        Logout
+      </motion.button>
       {/* Background decoration */}
       <div className="absolute top-0 left-0 w-full h-full opacity-5">
         <div className="absolute top-10 left-10 w-20 h-20 bg-blue-500 rounded-full"></div>
